@@ -1,102 +1,143 @@
 # slackAgent
 
-WorkFlow
-## PART 1
+**slackAgent** is an AI-powered Slack bot that answers user queries by leveraging a vector database powered by **LlamaIndex** and **ChromaDB**. It integrates with the **Slack API** to handle messages in channels or DMs and uses **n8n** for workflow automation. Alternatively, it offers a **Streamlit**-based web UI for querying the same backend. The project uses **OpenAI embeddings** for intelligent document retrieval and **FastAPI** for a lightweight backend.
 
-- SETUP PYTHON(3.10 using pip), FOLDER STRUCTURE(.env(OPENAI API KEY), requirements, documentation dir, storage dir) 
-"python3.10 -m venv venvSlackAgent"
-"source venvSlackAgent/bin/activate"
-"pip install -r requirements.txt"
+## Features
 
-- app.py ---> load openai key, documents, convert documents to vector embeddings and store in storage directory.
-"python3.10 app.py"
+- **Slack Integration**: Responds to queries in Slack channels or DMs via the Slack Events API.
+- **AI-Powered Search**: Uses LlamaIndex and ChromaDB to query documents converted into OpenAI embeddings.
+- **Workflow Automation**: Automates query processing and response delivery with n8n workflows.
+- **Alternative UI**: Provides a Streamlit-based web interface for querying without Slack.
+- **Local-to-Web**: Exposes local APIs to the web using **ngrok**.
 
-- main.py ---> basic backend to answer user questions based on our vector database.
-"uvicorn main:app --reload"
+## Project Structure
 
-## NEXT UP AUTOMATE WORKFLOWS USING n8n
+- `app.py`: Loads documents, converts them to OpenAI embeddings, and stores them in ChromaDB.
+- `main.py`: FastAPI backend to handle queries using the precomputed vector index.
+- `.env`: Stores the OpenAI API key.
+- `requirements.txt`: Lists Python dependencies (e.g., `llama-index`, `chromadb`, `fastapi`).
+- `storage/`: Persists vector embeddings in ChromaDB.
+- `documentation/`: Stores documents to be indexed.
 
+## Setup Instructions
 
-- setup n8n account(this is used for our workflow automation)
+### Prerequisites
+- Python 3.10
+- Slack account and workspace
+- n8n account
+- ngrok account
+- OpenAI API key
 
-- Below are our nodes
-- webhook - type of api connection that sends data from one application to another application on occurance of a specific event. 
-- edit fields
-- cleanup
-- http server(ngrok)
-- merge(edit fields+http server)
-- slack api
+### Installation
 
-- **ngrok** is used for running our local server using webhooks on n8n workflows
-(Basically we will be able to run our local apis anywhere on the web)
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/slackAgent.git
+   cd slackAgent
+   ```
 
-- **slack api** used so that users can directly chat via slack, 
+2. **Set Up Virtual Environment**
+   ```bash
+   python3.10 -m venv venvSlackAgent
+   source venvSlackAgent/bin/activate
+   ```
 
-## What Is the Slack API?
+3. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- The Slack API lets you build bots and apps that can:
+4. **Configure Environment**
+   - Create a `.env` file in the root directory:
+     ```
+     OPENAI_API_KEY=your-openai-api-key
+     DOCUMENTATION_DIR=./documentation
+     STORAGE_DIR=./storage
+     ```
 
-- Read messages from Slack
-- Post messages
-- Respond to user actions
-- Automate workflows
+5. **Add Documents**
+   - Place documents in the `documentation/` directory for indexing.
 
-## What Is the Events API?
+6. **Generate Vector Embeddings**
+   - Run `app.py` to load documents, create OpenAI embeddings, and store them in ChromaDB:
+     ```bash
+     python3.10 app.py
+     ```
 
-- Slack's Events API lets your bot get notified when things happen in Slack — like when someone sends a message, joins a channel, reacts with an emoji, etc.
+7. **Run the FastAPI Backend**
+   - Start the FastAPI server to handle queries:
+     ```bash
+     uvicorn main:app --reload
+     ```
 
-- You subscribe to events, and Slack sends you a payload (data) whenever that event occurs.
+### Slack API Setup
 
-- create a new app in slack api, then setup bot token scopes
+1. Create a Slack app at [api.slack.com](https://api.slack.com).
+2. Add bot token scopes:
+   - `app_mentions:read`
+   - `chat:write`
+   - `channels:history`
+3. Enable **Event Subscriptions** and paste your n8n webhook URL.
+4. Subscribe to bot events:
+   - `message.channels`
+   - `message.im`
+5. Add the bot to your Slack workspace (`slackAgent`).
 
-- 1.app_mentions:read ---> Allows your app to read messages where it is mentioned using @ (e.g., @slackAgent help)
+### n8n Workflow Setup
 
-- Use Case: You want your bot to react when someone calls it in a channel like @slackAgent how do I login?
+1. Sign up for an [n8n account](https://n8n.io).
+2. Create a workflow with the following nodes:
+   - **Webhook**: Captures Slack events and handles Slack's challenge verification.
+   - **Set Node**: Extracts `user_query` and `channel_id`.
+   - **Cleanup Node**: Removes mentions (e.g., `@slackAgent`) from queries.
+   - **HTTP Server Node**: Uses ngrok to forward queries to the FastAPI backend (`/query` endpoint).
+   - **Merge Node**: Combines query data and backend response into a JSON.
+   - **Slack Node**: Sends the response back to the Slack workspace.
+3. Set the webhook to **"Respond to WebHook"** mode for Slack API verification, then switch to **"Immediately"**.
+4. Run the workflow and test by sending a query (e.g., `@slackAgent how to install dependencies`) in Slack.
 
-- 2.chat:write ----------> Lets your bot post messages, replies, or updates in Slack conversations.
+### Alternative: Streamlit UI
 
-- Use Case: Respond to users, send alerts, welcome messages, etc.
+1. Set up an n8n workflow with:
+   - **Webhook**: Passes queries from Streamlit to FastAPI.
+   - **HTTP Server**: Uses ngrok to expose the local server.
+   - **Respond to Webhook**: Formats and returns the response.
+2. Run the Streamlit app:
+   ```bash
+   streamlit run streamlit_app.py
+   ```
 
-- 3.channels:history ---->  Lets your bot read all messages in public channels where it's a member.
+## Usage
 
-- Use Case: Useful if your bot needs to listen in on conversations or analyze past messages in channels like #general.
+- **Slack**: Mention the bot in a channel or DM (e.g., `@slackAgent how to install dependencies`).
+- **Streamlit**: Access the web UI, enter a query, and view the response.
 
-- turn on event subscriptions(and paste the n8n webhook url there)
-when we send a post request a challenge parameter is created in the request body. this challenge parameter is sent back to slack api for verification.
+## Example
 
-- in order to capture the challenge parameter we need to set a challenge field in n8n. 
+Ask in Slack:
+```
+@slackAgent How do I install dependencies?
+```
+Response:
+```
+Run `pip install -r requirements.txt` in your virtual environment.
+```
 
-- also in webhook change respond field to **Using 'Respond to WebHook' Mode** .
+## Technical Details
 
-- next go to enable events in slack api and paste the n8n url in request url field to trigger the workflow.(If your workflow is correct then it will show Verified.)
+- **Document Indexing** (`app.py`):
+  - Uses `SimpleDirectoryReader` to load documents from `documentation/`.
+  - Converts documents to OpenAI embeddings with `VectorStoreIndex`.
+  - Stores embeddings in `ChromaDB` under `storage/developer_documents_collection`.
 
-- next setup **subscribe to bot events**. Here we add 2 bot user events.
+- **Query Handling** (`main.py`):
+  - FastAPI backend with `/query` endpoint to process questions.
+  - Loads precomputed index from `storage/` and uses `query_engine` for responses.
 
-- message.channels - triggered when a message was posted to a channel
+## Contributing
 
-- message.im - triggered when a message was posted in a direct message(DM) channel
+Contributions are welcome! Please open an issue or submit a pull request.
 
+## License
 
-- next we get into our slack workspace we created, called slackAgent.(we will add our slackAgentApp created in slack api to our slack workspace.)
-
-- **Bot Testing using n8n workflow**
-
-- Firstly set Respond in webhook back to immediately as we set it just for testing slack api verification.
-
-- Ask any query through slack channel.(eg - how to install dependencies)
-
-- now we create a node which passes query, channel_id.
-
-- we also create another node for cleanup of our query. because sometimes we might also get the mentions in our user_messsage and we need to remove them
-
-- now using ngrok we will get this message to our local server. for this we create another node for http server(copy the ngrok url and paste it in that node)
-
-- On executing the http request node we can see the output of our query.
-
-- Next step is to get that output to our slackAgent workspace.
-
-- For this firstly we use the Merge node(get data from set node(user_query, channel_id) and http server node's response) and combine them into a single json.
-
-- Now we can use the slack node to send data to slackAgent Workspace.
-
-- - It will ask for authentication and connection to your workspace. do that accordingly. 
+MIT License
