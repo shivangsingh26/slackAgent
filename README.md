@@ -14,7 +14,7 @@
 
 - `app.py`: Loads documents, converts them to OpenAI embeddings, and stores them in ChromaDB.
 - `main.py`: FastAPI backend to handle queries using the precomputed vector index.
-- `.env`: Stores the OpenAI API key.
+- `.env`: Stores the OpenAI API key, documentation and storage directories.
 - `requirements.txt`: Lists Python dependencies (e.g., `llama-index`, `chromadb`, `fastapi`).
 - `storage/`: Persists vector embeddings in ChromaDB.
 - `documentation/`: Stores documents to be indexed.
@@ -32,7 +32,7 @@
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/slackAgent.git
+   git clone https://github.com/shivangsingh26/slackAgent.git
    cd slackAgent
    ```
 
@@ -81,7 +81,7 @@
 4. Subscribe to bot events:
    - `message.channels`
    - `message.im`
-5. Add the bot to your Slack workspace (`slackAgent`).
+5. Add the bot to your Slack workspace (`slackAgentApp`).
 
 ### n8n Workflow Setup
 
@@ -89,12 +89,12 @@
 2. Create a workflow with the following nodes:
    - **Webhook**: Captures Slack events and handles Slack's challenge verification.
    - **Set Node**: Extracts `user_query` and `channel_id`.
-   - **Cleanup Node**: Removes mentions (e.g., `@slackAgent`) from queries.
+   - **Cleanup Node**: Removes mentions (e.g., `@slackAgentApp`) from queries.
    - **HTTP Server Node**: Uses ngrok to forward queries to the FastAPI backend (`/query` endpoint).
    - **Merge Node**: Combines query data and backend response into a JSON.
    - **Slack Node**: Sends the response back to the Slack workspace.
 3. Set the webhook to **"Respond to WebHook"** mode for Slack API verification, then switch to **"Immediately"**.
-4. Run the workflow and test by sending a query (e.g., `@slackAgent how to install dependencies`) in Slack.
+4. Run the workflow and test by sending a query (e.g., `@slackAgentApp how to install dependencies`) in Slack.
 
 ### Alternative: Streamlit UI
 
@@ -109,14 +109,14 @@
 
 ## Usage
 
-- **Slack**: Mention the bot in a channel or DM (e.g., `@slackAgent how to install dependencies`).
+- **Slack**: Mention the bot in a channel or DM (e.g., `@slackAgentApp how to install dependencies`).
 - **Streamlit**: Access the web UI, enter a query, and view the response.
 
 ## Example
 
 Ask in Slack:
 ```
-@slackAgent How do I install dependencies?
+@slackAgentApp How do I install dependencies?
 ```
 Response:
 ```
@@ -137,7 +137,3 @@ Run `pip install -r requirements.txt` in your virtual environment.
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
-
-## License
-
-MIT License
