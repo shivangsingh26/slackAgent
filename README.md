@@ -104,7 +104,7 @@
    - **Respond to Webhook**: Formats and returns the response.
 2. Run the Streamlit app:
    ```bash
-   streamlit run streamlit_app.py
+   streamlit run chatbot_frontend.py
    ```
 
 ## Usage
