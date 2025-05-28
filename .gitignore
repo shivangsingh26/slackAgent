@@ -2,6 +2,8 @@ venvSlackAgent/
 .env
 storage/
 documentation/
+notes.txt
+slackAppCredentials.txt
 
 #GIVEN BELOW is a default .gitignore template
 
