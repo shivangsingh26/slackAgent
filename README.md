@@ -160,7 +160,7 @@ Skip Slack and use a web interface! 🌍 Check out the UI:
 
 See **slackAgent** in action! 🚀
 
-![Demo](media/agent_demo_video.mov)
+![Demo](media/agent_demo_gif.gif)
 
 ---
 
