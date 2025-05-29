@@ -1,33 +1,47 @@
-#This code is for a FastAPI Backend
-
+import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
-import os
-from llama_index.core import StorageContext, load_index_from_storage
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.core import (
+    StorageContext,
+    load_index_from_storage,
+    VectorStoreIndex,
+    SimpleDirectoryReader,
+)
 
-## A little about the imported libraries......
-#SimpleDirectoryReader ----> Helps to read text directory from files from a directory
-#VectorStoreIndex ---------> Maintains indices for document retrieval
-#StorageContext -----------> Manages storage of the indexed data present in the vectorDB
-#load_index_from_storage --> Loads the vector index from the storage context
+# -----------------------------------------------------------------------------
+# Description of imported libraries:
+# -----------------------------------------------------------------------------
+# - SimpleDirectoryReader: Reads files from a directory.
+# - VectorStoreIndex: Maintains indices for document retrieval.
+# - StorageContext: Manages the storage of indexed data in the vector DB.
+# - load_index_from_storage: Loads a vector index from the given storage context.
 
+# -----------------------------------------------------------------------------
+# Load environment variables and OpenAI key
+# -----------------------------------------------------------------------------
 load_dotenv()
-#load OPENAI KEY
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-#Initalize FastAPI app
+# -----------------------------------------------------------------------------
+# FastAPI initialization
+# -----------------------------------------------------------------------------
 app = FastAPI()
 
-#Load precomputed index from storage
-storage_context = StorageContext.from_defaults(persist_dir="./storage")
+# -----------------------------------------------------------------------------
+# Constants
+# -----------------------------------------------------------------------------
+STORAGE_DIR = os.getenv("STORAGE_DIR", "./storage")
 
-#consists of the vector embeddings of the documents
+# -----------------------------------------------------------------------------
+# Load vector index from storage
+# -----------------------------------------------------------------------------
+storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
 index = load_index_from_storage(storage_context)
-
-#Create a query engine to handle queries against the index
 query_engine = index.as_query_engine()
 
+# -----------------------------------------------------------------------------
+# API Endpoints
+# -----------------------------------------------------------------------------
 @app.get("/")
 async def root():
     """
@@ -35,16 +49,17 @@ async def root():
     """
     return {"message": "Our Slack Agent is up and running!"}
 
+
 @app.get("/query")
 async def query_documents(question: str):
     """
-    Endpoint to query the indexed documents.
+    Endpoint to query the indexed documents using a vector store.
     """
     if not question.strip():
         return {"error": "Question cannot be empty."}
 
     try:
-        response = query_engine.query(question)  # Use pre-created query_engine
+        response = query_engine.query(question)
         return {"response": str(response)}
     except Exception as e:
         return {"error": f"An error occurred while querying: {str(e)}"}

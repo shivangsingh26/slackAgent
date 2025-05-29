@@ -1,66 +1,76 @@
 import os
 from dotenv import load_dotenv
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext
+from llama_index.core import (
+    SimpleDirectoryReader,
+    VectorStoreIndex,
+    StorageContext,
+)
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 
-## A little about the imported libraries......
-#SimpleDirectoryReader ----> Helps to read text directory from files from a directory
-#VectorStoreIndex ---------> Maintains indices for document retrieval
-#StorageContext -----------> Manages storage of the indexed data present in the vectorDB
+# -----------------------------------------------------------------------------
+# Explanation of Libraries
+# -----------------------------------------------------------------------------
+# SimpleDirectoryReader ---> Helps read files from a directory
+# VectorStoreIndex --------> Maintains indices for document retrieval
+# StorageContext ----------> Manages storage of the indexed data in the vector DB
+# ChromaVectorStore -------> Enables use of ChromaDB as our vector DB
+# chromadb ----------------> Lightweight open-source vector database
 
-#ChromaVectorStore --------> Used to make sure we can use ChromaDB as our vectorDB
-#chromadb -----------------> A lightweight opensource vectorDB
-
-#Load OPENAI KEY
+# -----------------------------------------------------------------------------
+# Load environment variables and OPENAI key
+# -----------------------------------------------------------------------------
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-################## SOME NUNCHECKS #####################################
-
+# -----------------------------------------------------------------------------
+# Directory setup and checks
+# -----------------------------------------------------------------------------
 # Get directory paths from environment variables or use defaults
-documentation_dir = os.getenv("DOCUMENTATION_DIR", "./documentation")
-storage_dir = os.getenv("STORAGE_DIR", "./storage")
+DOCUMENTATION_DIR = os.getenv("DOCUMENTATION_DIR", "./documentation")
+STORAGE_DIR = os.getenv("STORAGE_DIR", "./storage")
 
-# Ensure directories exist
-if not os.path.exists(documentation_dir):
-    os.makedirs(documentation_dir)
-    print(f"Created missing directory: {documentation_dir}")
+# Ensure required directories exist
+if not os.path.exists(DOCUMENTATION_DIR):
+    os.makedirs(DOCUMENTATION_DIR)
+    print(f"Created missing directory: {DOCUMENTATION_DIR}")
 
-if not os.path.exists(storage_dir):
-    os.makedirs(storage_dir)
-    print(f"Created missing directory: {storage_dir}")
+if not os.path.exists(STORAGE_DIR):
+    os.makedirs(STORAGE_DIR)
+    print(f"Created missing directory: {STORAGE_DIR}")
 
 # Check if documentation directory is empty
-if not os.listdir(documentation_dir):
-    raise Exception(f"The {documentation_dir} directory is empty. Please add documents to proceed.")
+if not os.listdir(DOCUMENTATION_DIR):
+    raise Exception(
+        f"The {DOCUMENTATION_DIR} directory is empty. Please add documents to proceed."
+    )
 
-#########################################################################
+# -----------------------------------------------------------------------------
+# Load documents and initialize ChromaDB
+# -----------------------------------------------------------------------------
+documents = SimpleDirectoryReader(DOCUMENTATION_DIR).load_data()
 
-#Load our documents
-documents = SimpleDirectoryReader(documentation_dir).load_data()
+# Initialize ChromaDB with persistent storage
+chroma_client = chromadb.PersistentClient(path=STORAGE_DIR)
 
-#Initialize ChromaDB, define a storage dir to persist our data
-chroma_client = chromadb.PersistentClient(path=storage_dir)
+# Set collection name
+COLLECTION_NAME = "developer_documents_collection"
 
-#Load chroma collection
-collection_name = "developer_documents_collection"
-
-#Look for collection with name given above, 
-#if it doesnt exists, create a new one.
+# Try to get or create the ChromaDB collection
 try:
-    chroma_collection = chroma_client.get_collection(collection_name)
-
+    chroma_collection = chroma_client.get_collection(COLLECTION_NAME)
 except Exception:
-    chroma_collection = chroma_client.create_collection(collection_name)
+    chroma_collection = chroma_client.create_collection(COLLECTION_NAME)
 
-#Wrap chromaDB as vector store
+# Wrap ChromaDB collection as a vector store
 vector_store = ChromaVectorStore(chroma_collection)
 
-#Now lets create Vector Index(converting documents into OPENAI Embeddings)
+# -----------------------------------------------------------------------------
+# Create vector index and persist it
+# -----------------------------------------------------------------------------
 index = VectorStoreIndex.from_documents(documents, vector_store=vector_store)
 
-#Now storing our vector embeddings inside our persisted folder
-index.storage_context.persist(persist_dir=storage_dir)
+# Save vector embeddings
+index.storage_context.persist(persist_dir=STORAGE_DIR)
 
 print("Lessgooo, Documents Loaded successfully")
