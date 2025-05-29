@@ -122,9 +122,10 @@ The **Slack API** lets your bot read/post messages and automate tasks. The **Eve
 
 ### ⚙️ n8n Workflow Setup
 
-Automate with [n8n](https://n8n.io)! 🛠️ See the workflow in action:
+Automate with [n8n](https://n8n.io)! 🛠️ Visualize the workflow:
 
-![n8n Workflow](images/n8n_workflow.png)
+![Excalidraw Workflow](media/agent_workflow.png)
+![n8n Workflow](media/n8n_workflow.png)
 
 1. Create an n8n workflow with these nodes:
    - **Webhook** 🌐: Captures Slack events and verifies challenges.
@@ -142,7 +143,7 @@ Automate with [n8n](https://n8n.io)! 🛠️ See the workflow in action:
 
 Skip Slack and use a web interface! 🌍 Check out the UI:
 
-![Streamlit UI](images/streamlit_ui.png)
+![Streamlit UI](media/streamlit_ui.png)
 
 1. Create an n8n workflow with:
    - **Webhook** 📡: Passes queries from Streamlit to FastAPI.
@@ -155,9 +156,22 @@ Skip Slack and use a web interface! 🌍 Check out the UI:
 
 ---
 
+## 🎥 Demo
+
+See **slackAgent** in action! 🚀
+
+![Demo](media/agent_demo_video.mov)
+
+---
+
 ## 🎮 Usage
 
-- **Slack**: Ping the bot (e.g., `@slackAgentApp how to install dependencies`). 💬
+Chat with the bot in Slack or use the Streamlit UI! 💬
+
+![Slack Bot Interaction On Channel](media/slack_interaction_channel.png)
+![Slack Bot Interaction On DM](media/slack_interaction_dm.png)
+
+- **Slack**: Ping the bot (e.g., `@slackAgentApp how to install dependencies`).
 - **Streamlit**: Open the web UI, type a query, and get answers! 🌐
 
 ## 🧪 Example
