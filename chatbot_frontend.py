@@ -5,7 +5,7 @@ import streamlit as st
 # Constants
 N8N_WEBHOOK_URL = (
     "https://shivangsingh26.app.n8n.cloud/webhook-test/slackAgent"
-)  # Replace with your actual webhook
+)  
 
 # Page config
 st.set_page_config(

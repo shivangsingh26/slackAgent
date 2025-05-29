@@ -122,7 +122,9 @@ The **Slack API** lets your bot read/post messages and automate tasks. The **Eve
 
 ### ⚙️ n8n Workflow Setup
 
-Automate with [n8n](https://n8n.io)! 🛠️
+Automate with [n8n](https://n8n.io)! 🛠️ See the workflow in action:
+
+![n8n Workflow](images/n8n_workflow.png)
 
 1. Create an n8n workflow with these nodes:
    - **Webhook** 🌐: Captures Slack events and verifies challenges.
@@ -138,7 +140,9 @@ Automate with [n8n](https://n8n.io)! 🛠️
 
 ### 🌐 Streamlit UI Setup (Alternative)
 
-Skip Slack and use a web interface! 🌍
+Skip Slack and use a web interface! 🌍 Check out the UI:
+
+![Streamlit UI](images/streamlit_ui.png)
 
 1. Create an n8n workflow with:
    - **Webhook** 📡: Passes queries from Streamlit to FastAPI.
